@@ -38,6 +38,10 @@ void convolute(T ** ker,const  int ker_w,const  int ker_h,const  gray8c_view_t &
     loc *loc_it = ker_loc;
 
 
+    T bla=0;
+    for (int x = 0; x < ker_w; ++x) for (int y = 0; y < ker_h; ++y)bla+=ker[y][x];
+    cout<<endl<<bla;
+
     for(int y=0;y<ker_h;y++)
         for(int x=0;x<ker_w;x++) {
             *(loc_it++) = src_loc.cache_location(x - ker_w / 2, y - ker_h / 2);
@@ -45,20 +49,43 @@ void convolute(T ** ker,const  int ker_w,const  int ker_h,const  gray8c_view_t &
         }
 
 
-    for(int y=ker_h/2;y<src.height()-ker_h/2;y++) {
+    if (typeid(T) == typeid(float)||typeid(T) == typeid(double)){
+        for(int y=ker_h/2;y<src.height()-ker_h/2;y++) {
 
-        gray8_view_t::x_iterator d_row_it = dst.row_begin(y);
+            auto d_row_it = dst.row_begin(y);
 
-        for (int x = ker_w/2; x < src.width()-ker_w/2; x++) {
-            *d_row_it = 0;
-            for(int c=0;c<ker_size;c++)(*d_row_it) = (*d_row_it) + ker_value[c]*src_loc[ker_loc[c]];
-            d_row_it++;
-            src_loc.x()++;
+            for (int x = ker_w/2; x < src.width()-ker_w/2; x++) {
+                T val = 0;
+                for(int c=0;c<ker_size;c++) val+= ker_value[c] * src_loc[ker_loc[c]];
+
+                *d_row_it = (int)round(val);
+                d_row_it++;
+                src_loc.x()++;
+            }
+
+            src_loc.x() -= src.width()-ker_w+1;
+            src_loc.y()++;
         }
 
-        src_loc.x() -= src.width()-ker_w+1;
-        src_loc.y()++;
+    }else {
+        for(int y=ker_h/2;y<src.height()-ker_h/2;y++) {
+
+            auto d_row_it = dst.row_begin(y);
+
+            for (int x = ker_w/2; x < src.width()-ker_w/2; x++) {
+                T val = 0;
+                for(int c=0;c<ker_size;c++) val+= ker_value[c] * src_loc[ker_loc[c]];
+
+                *d_row_it = (int)round(val);
+                d_row_it++;
+                src_loc.x()++;
+            }
+
+            src_loc.x() -= src.width()-ker_w+1;
+            src_loc.y()++;
+        }
     }
+
 
 }
 
@@ -83,7 +110,7 @@ int main()
     double **kernel;
     kernel = new double *[W];for(int i = 0; i <W; i++)kernel[i] = new double[W];
     for(int x=0;x<W;x++)for(int y=0;y<W;y++)kernel[x][y]=0;
-    double sigma = 7;
+    double sigma = 15;
     double mean = W/2;
     double sum = 0.0; // For accumulating the kernel values
     for (int x = 0; x < W; ++x)
@@ -98,7 +125,7 @@ int main()
 // Normalize the kernel
     for (int x = 0; x < W; ++x)
         for (int y = 0; y < W; ++y)
-            kernel[x][y] /= sum;
+            kernel[x][y] /=sum;
 
 
 
