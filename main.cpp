@@ -53,6 +53,7 @@ void convolute(T ** ker,const  int ker_w,const  int ker_h,const  gray8c_view_t &
         for(int y=ker_h/2;y<src.height()-ker_h/2;y++) {
 
             auto d_row_it = dst.row_begin(y);
+            d_row_it +=ker_w/2;
 
             for (int x = ker_w/2; x < src.width()-ker_w/2; x++) {
                 T val = 0;
@@ -73,10 +74,9 @@ void convolute(T ** ker,const  int ker_w,const  int ker_h,const  gray8c_view_t &
             auto d_row_it = dst.row_begin(y);
 
             for (int x = ker_w/2; x < src.width()-ker_w/2; x++) {
-                T val = 0;
-                for(int c=0;c<ker_size;c++) val+= ker_value[c] * src_loc[ker_loc[c]];
+                *d_row_it = 0;
+                for(int c=0;c<ker_size;c++) *d_row_it = *d_row_it + ker_value[c] * src_loc[ker_loc[c]];
 
-                *d_row_it = (int)round(val);
                 d_row_it++;
                 src_loc.x()++;
             }
@@ -110,7 +110,7 @@ int main()
     double **kernel;
     kernel = new double *[W];for(int i = 0; i <W; i++)kernel[i] = new double[W];
     for(int x=0;x<W;x++)for(int y=0;y<W;y++)kernel[x][y]=0;
-    double sigma = 15;
+    double sigma = 2;
     double mean = W/2;
     double sum = 0.0; // For accumulating the kernel values
     for (int x = 0; x < W; ++x)
