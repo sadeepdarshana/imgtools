@@ -1,5 +1,16 @@
 # imgtools 
 
+## Usage
+### Setting Up
+Copy the lib folder into your project and #include "lib/tools_all.hpp"
+
+### Applying 
+
+    apply_gaussian_blur(11,3, const_view(raw_img1),view(dst_raw1));
+    apply_sobel_filter(const_view(raw_img2),view(dst_raw2));
+    apply_mean_filter(const_view(raw_img3),view(dst_raw3));
+    apply_median_filter(const_view(raw_img4),view(dst_raw4));
+
 ## Features
 
 
